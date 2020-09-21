@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
             return seastar::make_ready_future<>();
         });
     } catch(...) {
-        std::cerr << "Failed to start application: "
+        std::cerr << "Couldn't start application: "
                   << std::current_exception() << "\n";
         return 1;
     }
@@ -342,7 +342,7 @@ A future value might already be ready when `then()` is called to chain a continu
 
 This optimization is done *usually*, though sometimes it is avoided: The implementation of `then()` holds a counter of such immediate continuations, and after many continuations have been run immediately without returning to the event loop (currently the limit is 256), the next continuation is deferred to the event loop in any case. This is important because in some cases (such as future loops, discussed later) we could find that each ready continuation spawns a new one, and without this limit we can starve the event loop. It important not to starve the event loop, as this would starve continuations of futures that weren't ready but have since become ready, and also starve the important **polling** done by the event loop (e.g., checking whether there is new activity on the network card).
 
-`make_ready_future<>` can be used to return a future which is already ready. The following example is identical to the previous one, except the promise function `fast()` returns a future which is already ready, and not one which will be ready in a second as in the previous example. The nice thing is that the consumer of the future does not care, and uses the future in the same way in both cases.
+`make_ready_future<>` can be used to return a future which is already ready. The following example is identical to the previous one, except the promise function `fast()` returns a future which is already ready, and not one which will be ready in 100 milliseconds as in the previous example. The nice thing is that the consumer of the future does not care, and uses the future in the same way in both cases.
 
 ```cpp
 #include <seastar/core/future.hh>
