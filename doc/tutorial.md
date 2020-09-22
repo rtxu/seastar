@@ -521,7 +521,7 @@ seastar::future<> fail() {
 }
 ```
 
-Here, `fail()` does not return a failing future. Rather, it fails to return a future at all! The exception it throws stops the entire function `f()`, and the `finally()` continuation does not not get attached to the future (which was never returned), and will never run. The "cleaning up" message is not printed now.
+Here, `fail()` does not return a failing future. Rather, it fails to return a future at all! The exception it throws stops the entire function `f()`, and the `finally()` continuation does not get attached to the future (which was never returned), and will never run. The "cleaning up" message is not printed now.
 
 We recommend that to reduce the chance for such errors, asynchronous functions should always return a failed future rather than throw an actual exception. If the asynchronous function calls another function _before_ returning a future, and that second function might throw, it should use `try`/`catch` to catch the exception and convert it into a failed future:
 
@@ -661,7 +661,7 @@ Note that this is merely a convention suggested by Seastar, and unfortunately no
 
 > It would be nice if future versions of C++ could help us catch incorrect uses of references. Perhaps we could have a tag for a special kind of reference, an "immediate reference" which a function can use use immediately (i.e, before returning a future), but cannot be captured into a continuation.
 
-With this convention in place, it is easy to write complex asynchronous functions functions like `slow_op` which pass the object around, by reference, until the asynchronous operation is done. But how does the caller ensure that the object lives until the returned future is resolved? The following is *wrong*:
+With this convention in place, it is easy to write complex asynchronous functions like `slow_op` which pass the object around, by reference, until the asynchronous operation is done. But how does the caller ensure that the object lives until the returned future is resolved? The following is *wrong*:
 ```cpp
 seastar::future<> f() {
     T obj; // wrong! will be destroyed too soon!
@@ -788,7 +788,7 @@ seastar::future<> push_until_100(seastar::lw_shared_ptr<std::vector<int>> queue,
             return make_ready_future<stop_iteration>(stop_iteration::yes);
         }
         return recompute_number(element).then([queue] (int new_element) {
-            queue->push_back(element);
+            queue->push_back(new_element);
             return stop_iteration::no;
         });
     });
