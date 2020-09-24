@@ -1227,7 +1227,7 @@ seastar::future<> f() {
             seastar::with_gate(g, [i] { return slow(i); });
             // wait one second before starting the next iteration
             return seastar::sleep(std::chrono::seconds(1));
-		}).then([&g] {
+	}).then([&g] {
             seastar::sleep(std::chrono::seconds(1)).then([&g] {
                 // This will fail, because it will be after the close()
                 seastar::with_gate(g, [] { return slow(6); });
@@ -1747,7 +1747,7 @@ seastar::future_state<>::~future_state() at include/seastar/core/future.hh:414
 f() at test.cc:12
 ```
 
-Here we see that the warning message was printed by the `seastar::report_failed_future()` function which was called when destroying a future (`future<>::~future`) that had not been handled. The future's destructor was called in line 11 of our test code (`26.cc`), which is indeed the line where we called `g()` and ignored its result.  
+Here we see that the warning message was printed by the `seastar::report_failed_future()` function which was called when destroying a future (`future<>::~future`) that had not been handled. The future's destructor was called in line 12 of our test code (`test.cc`), which is indeed the line where we called `g()` and ignored its result.  
 This backtrace gives us an accurate understanding of where our code destroyed an exceptional future without handling it first, which is usually helpful in solving these kinds of bugs. Note that this technique does not tell us where the exception was first created, nor what code passed around the exceptional future before it was destroyed - we just learn where the future was destroyed. To learn where the exception was originally thrown, see the next section:
 
 ## Finding where an exception was thrown
